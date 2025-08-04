@@ -10,7 +10,6 @@ def load_and_preprocess_data(filename='Iris.csv'):
     """Load the iris dataset and create one-hot encoded target variables."""
     data = pd.read_csv(filename)
     
-    # Create one-hot encoded columns for species
     for species in TARGET_COLUMNS:
         data[species] = (data['Species'] == species).astype(int)
     
@@ -54,19 +53,13 @@ def train(data, labels, learning_rate=0.01, epochs=1000):
     """Train softmax regression model using gradient descent."""
     n_features = data.shape[1]
     n_classes = labels.shape[1]
-    
-    # Initialize weights with small random values instead of ones
+
     weights = np.random.normal(0, 0.01, (n_classes, n_features))
     
     for epoch in range(epochs):
         probabilities = predict(weights, data)
         gradient = np.dot((probabilities - labels.values).T, data) / len(labels)
         weights -= learning_rate * gradient
-        
-        # Optional: print loss every 100 epochs for monitoring
-        if epoch % 100 == 0:
-            loss = -np.mean(np.sum(labels.values * np.log(probabilities + 1e-15), axis=1))
-            print(f"Epoch {epoch}, Loss: {loss:.4f}")
     
     return weights
 
@@ -80,25 +73,20 @@ def accuracy(probabilities, target):
 
 def main():
     """Main function to run the softmax regression."""
-    # Load and preprocess data
     data = load_and_preprocess_data('Iris.csv')
     train_data, test_data = train_test_split(data)
     
-    # Prepare features and targets
     train_features, train_targets = prepare_features_and_targets(train_data)
     test_features, test_targets = prepare_features_and_targets(test_data)
     
     print(f"Training data shape: {train_features.shape}")
     print(f"Test data shape: {test_features.shape}")
     
-    # Train the model
     trained_weights = train(train_features, train_targets, learning_rate=0.01, epochs=1000)
     
-    # Evaluate on training data
     train_probabilities = predict(trained_weights, train_features)
     train_accuracy = accuracy(train_probabilities, train_targets)
     
-    # Evaluate on test data
     test_probabilities = predict(trained_weights, test_features)
     test_accuracy = accuracy(test_probabilities, test_targets)
     
